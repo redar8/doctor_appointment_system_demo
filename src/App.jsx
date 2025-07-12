@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
-import { auth } from "./firebase"; // Firebase Auth only
-import { onAuthStateChanged } from "firebase/auth";
+import {
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
 import CreateAppointments from "./pages/CreateAppointments";
@@ -26,16 +31,26 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // On mount, check if user is saved in localStorage (simulate logged in)
   useEffect(() => {
-    // Listen for Firebase auth state changes (login/logout)
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    // Cleanup listener on unmount
-    return () => unsubscribe();
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setLoading(false);
   }, []);
+
+  // Function to simulate login: save user to state and localStorage
+  const handleLogin = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
+  // Function to simulate logout: clear user state and localStorage
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
 
   if (loading) {
     return <div className="text-center mt-5">Loading...</div>;
@@ -46,19 +61,37 @@ function App() {
       <Routes>
         {/* Public route: login */}
         <Route
-          path="/"
-          element={user ? <Navigate to="/dashboard" replace /> : <Login />}
+          path="/login"
+          element={
+            user ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Login onLogin={handleLogin} />
+            )
+          }
         />
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute user={user} />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/create-appointments" element={<CreateAppointments />} />
-          <Route path="/appointments" element={<Appointments />} />
-          <Route path="/patients" element={<Patients />} />
-          <Route path="/admins" element={<AdminList />} />
-          <Route path="/register-admin" element={<RegisterAdmin />} />
-          <Route path="/profile" element={<ProfileSettings />} />
+          <Route
+            path="/dashboard"
+            element={<Dashboard user={user} onLogout={handleLogout} />}
+          />
+          <Route
+            path="/create-appointments"
+            element={<CreateAppointments user={user} />}
+          />
+          <Route path="/appointments" element={<Appointments user={user} />} />
+          <Route path="/patients" element={<Patients user={user} />} />
+          <Route path="/admins" element={<AdminList user={user} />} />
+          <Route
+            path="/register-admin"
+            element={<RegisterAdmin user={user} />}
+          />
+          <Route
+            path="/profile"
+            element={<ProfileSettings user={user} onLogout={handleLogout} />}
+          />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Route>
 

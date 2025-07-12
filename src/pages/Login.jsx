@@ -1,23 +1,20 @@
 import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Form, Button, Alert, Container, Card } from "react-bootstrap";
 import { Envelope, Lock } from "react-bootstrap-icons";
 
-function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function Login({ onLogin }) {
+  const [email, setEmail] = useState("admin@demo.com");
+  const [password, setPassword] = useState("Admin@123");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      // Replace this with actual validation if needed
+      // Your demo credentials
       const validDemoCredentials = {
         email: "admin@demo.com",
         password: "Admin@123",
@@ -31,18 +28,11 @@ function Login() {
         throw new Error("Invalid email or password");
       }
 
-      // Set demo auth session
-      sessionStorage.setItem(
-        "authUser",
-        JSON.stringify({
-          email: validDemoCredentials.email,
-          role: validDemoCredentials.role,
-        })
-      );
-
-      navigate("/dashboard", {
-        replace: true,
-        state: { freshLogin: true },
+      // Call onLogin with user info to set user state in App.jsx
+      onLogin({
+        email: validDemoCredentials.email,
+        role: validDemoCredentials.role,
+        uid: "demo-user-id", // you can add any identifier here
       });
     } catch (err) {
       setError(err.message);
@@ -69,9 +59,7 @@ function Login() {
                   type="email"
                   placeholder="Enter Your Email"
                   value={email}
-                  onChange={(e) =>
-                    setEmail(e.target.value.toLowerCase().trim())
-                  }
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   autoFocus
                 />
