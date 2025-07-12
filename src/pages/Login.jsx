@@ -4,8 +4,8 @@ import { Form, Button, Alert, Container, Card } from "react-bootstrap";
 import { Envelope, Lock } from "react-bootstrap-icons";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@demo.com");
+  const [password, setPassword] = useState("Demo!Pass2025");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ function Login() {
       // Replace this with actual validation if needed
       const validDemoCredentials = {
         email: "admin@demo.com",
-        password: "admin123",
+        password: "Demo!Pass2025",
         role: "Super Admin",
       };
 
